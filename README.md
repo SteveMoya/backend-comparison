@@ -6,44 +6,72 @@ Comparar tecnologías backend mediante benchmarks de rendimiento, consumo de rec
 
 ## Stack Tecnológico
 
-### Tecnologías a Comparar
+### Tecnologías Comparadas
 
-| Tecnología | Rama | Puerto |
-|------------|------|--------|
-| Node.js + NestJS | `feature/nodejs-nestjs` | 3000 |
-| Bun | `feature/bun` | 3001 |
-| Go + Gin | `feature/go-gin` | 3002 |
-| Python + FastAPI | `feature/python-fastapi` | 3003 |
+| Tecnología | Puerto | Estado |
+|------------|--------|--------|
+| Node.js + NestJS | 3000 | ✅ Completado |
+| Bun | 3001 | ✅ Completado |
+| Go + Gin | 3002 | ✅ Completado |
+| Python + FastAPI | 3003 | ✅ Completado |
 
 ### Infraestructura
 
-- **PostgreSQL** (puerto 5432)
-- **Redis** (puerto 6379)
+- **PostgreSQL** (puerto 5432) - Base de datos
+- **Redis** (puerto 6379) - Cache/Mensajería
+
+## Resultados de Benchmarks
+
+### 🏆 Ganador: Go/Gin
+
+| Escenario | Go/Gin | Bun | Node.js/NestJS | Python/FastAPI |
+|-----------|--------|-----|----------------|----------------|
+| **Smoke (10 VUs)** | 2,012 RPS | 1,946 RPS | 1,056 RPS | 495 RPS |
+| **Load 50** | 588 RPS | 549 RPS | 565 RPS | 300 RPS |
+| **Load 100** | 457 RPS | 413 RPS | 328 RPS | 4 RPS* |
+| **Stress 1000** | 425 RPS | 418 RPS | 324 RPS | 31 RPS* |
+
+*Python falló bajo carga alta
+
+### Memoria
+
+| Tecnología | Consumo |
+|------------|---------|
+| Go/Gin | 36 MB |
+| Node.js/NestJS | 43 MB |
+| Bun | 61 MB |
+| Python/FastAPI | 76 MB |
 
 ## Estructura del Proyecto
 
 ```
 backend-comparison/
-├── docker-compose.yml          # Orquestador centralizado
-├── .github/workflows/           # CI/CD pipelines
+├── docker-compose.yml              # Orquestador
+├── .github/workflows/               # CI/CD
 ├── benchmarks/
-│   ├── k6/                     # Scripts de carga
-│   │   ├── smoke.js
-│   │   ├── load.js
-│   │   ├── stress.js
-│   │   ├── spike.js
-│   │   └── soak.js
-│   ├── results/                # Resultados JSON
-│   └── run-benchmarks.sh       # Script de ejecución
+│   ├── k6/                        # Scripts de carga
+│   │   ├── smoke.js              # 10 VUs, 1min
+│   │   ├── load_short.js         # 50 VUs, 1min
+│   │   ├── load_100.js           # 100 VUs, 1min
+│   │   └── stress_1000.js        # 1000 VUs, 3min
+│   ├── results/                   # Resultados HTML
+│   ├── report.md                 # Informe completo
+│   └── run-benchmarks.sh          # Script automatizado
 ├── src/
-│   ├── nodejs-nestjs/
-│   ├── bun/
-│   ├── go-gin/
-│   └── python-fastapi/
-└── PLAN.md
+│   ├── nodejs-nestjs/             # NestJS + TypeORM
+│   ├── bun/                       # Elysia + PostgreSQL
+│   ├── go-gin/                    # Gin + sqlx
+│   └── python-fastapi/            # FastAPI + SQLAlchemy
+├── PLAN.md                        # Plan del proyecto
+└── README.md                      # Este archivo
 ```
 
 ## Inicio Rápido
+
+### Prerrequisitos
+
+- Docker y Docker Compose
+- sudo para ejecutar docker
 
 ### 1. Levantar servicios
 
@@ -57,55 +85,105 @@ docker compose up -d
 docker compose ps
 ```
 
-### 3. Ejecutar benchmarks
+Deberían ver 6 contenedores corriendo:
+- app-nodejs-nestjs (3000)
+- app-bun (3001)
+- app-go-gin (3002)
+- app-python-fastapi (3003)
+- benchmark-postgres (5432)
+- benchmark-redis (6379)
+
+### 3. Probar endpoints
 
 ```bash
-# Todos los tests en todas las tecnologías
-./benchmarks/run-benchmarks.sh all
+# Node.js
+curl http://localhost:3000/api/users
 
-# Solo smoke test
-./benchmarks/run-benchmarks.sh smoke
+# Bun
+curl http://localhost:3001/api/users
+
+# Go
+curl http://localhost:3002/api/users
+
+# Python
+curl http://localhost:3003/api/users
 ```
 
-## Benchmarking
+## Benchmarks
 
-### Escenarios de Prueba
+### Ejecutar benchmarks automatizados
 
-| Escenario | Descripción | Concurrencia | Duración |
-|-----------|-------------|--------------|----------|
-| **Smoke** | Validación básica | 10 usuarios | 1 min |
-| **Load** | Carga sostenida | 50-100 usuarios | 5 min |
-| **Stress** | Carga máxima | 500-1000 usuarios | 3 min |
-| **Spike** | Pico repentino | 10 → 500 usuarios | 2 min |
-| **Soak** | Prueba prolongada | 100 usuarios | 30 min |
+```bash
+# Todos los tests
+sudo ./benchmarks/run-benchmarks.sh all
 
-### Métricas
+# Solo smoke test
+sudo ./benchmarks/run-benchmarks.sh smoke
 
-- **RPS** (Requests Per Second)
-- **Latencia**: p50, p95, p99
-- **CPU%**, **RAM MB**
-- **Tasa de errores**
+# Solo load test 50 VUs
+sudo ./benchmarks/run-benchmarks.sh load
 
-## Git Branches
+# Solo load test 100 VUs
+sudo ./benchmarks/run-benchmarks.sh load100
 
-| Rama | Propósito |
-|------|-----------|
-| `main` | Docker Compose + resultados benchmarks |
-| `feature/nodejs-nestjs` | Implementación NestJS |
-| `feature/bun` | Implementación Bun |
-| `feature/go-gin` | Implementación Go + Gin |
-| `feature/python-fastapi` | Implementación FastAPI |
+# Solo stress test
+sudo ./benchmarks/run-benchmarks.sh stress
+```
 
-## Contribuir
+### Scripts k6 disponibles
 
-1. Crear branch desde `main`
-2. Implementar cambios
-3. Ejecutar tests localmente
-4. Crear PR a `main`
+| Script | Descripción | VUs | Duración |
+|--------|-------------|-----|----------|
+| `smoke.js` | Validación básica | 10 | 1 min |
+| `load_short.js` | Carga normal | 50 | 1 min |
+| `load_100.js` | Carga alta | 100 | 1 min |
+| `stress_1000.js` | Estrés máximo | 1000 | 3 min |
 
-## Roadmap
+### Detener servicios
 
-- [x] Fase 1: Estructura Base
-- [ ] Fase 2: Implementación CRUD
-- [ ] Fase 3: Benchmarking
-- [ ] Fase 4: Documentación
+```bash
+docker compose down
+```
+
+## Endpoints API
+
+### Usuarios
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | /api/users | Crear usuario |
+| GET | /api/users | Listar (paginado) |
+| GET | /api/users/:id | Obtener por ID |
+| PUT | /api/users/:id | Actualizar usuario |
+| DELETE | /api/users/:id | Eliminar usuario |
+| GET | /api/users/:id/orders | Ver pedidos |
+| GET | /api/users/:id/stats | Estadísticas |
+
+### Pedidos
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | /api/orders | Crear pedido |
+| GET | /api/orders | Listar pedidos |
+| GET | /api/orders/:id | Obtener por ID |
+| PUT | /api/orders/:id | Actualizar estado |
+| DELETE | /api/orders/:id | Eliminar pedido |
+| GET | /api/orders/aggregation | Agregaciones |
+
+## Recomendaciones
+
+| Caso de Uso | Tecnología |
+|-------------|------------|
+| APIs de alto rendimiento | Go/Gin |
+| Microservicios rápidos | Bun |
+| Equipos JavaScript | Node.js/NestJS |
+| Prototyping/ML services | Python/FastAPI |
+
+## Documentación Adicional
+
+- [PLAN.md](./PLAN.md) - Plan completo del proyecto
+- [benchmarks/report.md](./benchmarks/report.md) - Informe detallado de benchmarks
+
+## License
+
+MIT
