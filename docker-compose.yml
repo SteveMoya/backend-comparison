@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: benchmark-postgres
+    environment:
+      POSTGRES_USER: benchmark
+      POSTGRES_PASSWORD: benchmark
+      POSTGRES_DB: benchmark
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U benchmark"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - benchmark-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: benchmark-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - benchmark-network
+
+  app-nodejs:
+    build:
+      context: ./src/nodejs-nestjs
+      dockerfile: Dockerfile
+    container_name: app-nodejs-nestjs
+    environment:
+      - DATABASE_URL=postgresql://benchmark:benchmark@postgres:5432/benchmark
+      - REDIS_URL=redis://redis:6379
+      - PORT=3000
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - benchmark-network
+
+  app-bun:
+    build:
+      context: ./src/bun
+      dockerfile: Dockerfile
+    container_name: app-bun
+    environment:
+      - DATABASE_URL=postgresql://benchmark:benchmark@postgres:5432/benchmark
+      - REDIS_URL=redis://redis:6379
+      - PORT=3001
+      - NODE_ENV=production
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - benchmark-network
+
+  app-go:
+    build:
+      context: ./src/go-gin
+      dockerfile: Dockerfile
+    container_name: app-go-gin
+    environment:
+      - DATABASE_URL=postgresql://benchmark:benchmark@postgres:5432/benchmark
+      - REDIS_URL=redis://redis:6379
+      - PORT=3002
+      - GO_ENV=production
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - benchmark-network
+
+  app-python:
+    build:
+      context: ./src/python-fastapi
+      dockerfile: Dockerfile
+    container_name: app-python-fastapi
+    environment:
+      - DATABASE_URL=postgresql://benchmark:benchmark@postgres:5432/benchmark
+      - REDIS_URL=redis://redis:6379
+      - PORT=3003
+      - PYTHON_ENV=production
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - benchmark-network
+
+volumes:
+  postgres_data:
+
+networks:
+  benchmark-network:
+    driver: bridge

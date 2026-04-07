@@ -1,0 +1,255 @@
+name: Benchmark CI
+
+on:
+  push:
+    branches: [main, 'feature/**']
+  pull_request:
+    branches: [main]
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - tech: nodejs-nestjs
+            path: src/nodejs-nestjs
+            setup: node
+            node-version: '20'
+          - tech: bun
+            path: src/bun
+            setup: bun
+            bun-version: '1'
+          - tech: go-gin
+            path: src/go-gin
+            setup: go
+            go-version: '1.21'
+          - tech: python-fastapi
+            path: src/python-fastapi
+            setup: python
+            python-version: '3.11'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        if: matrix.setup == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: ${{ matrix.path }}/package-lock.json
+
+      - name: Setup Bun
+        if: matrix.setup == 'bun'
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ matrix.bun-version }}
+
+      - name: Setup Go
+        if: matrix.setup == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+          cache-dependency-path: ${{ matrix.path }}/go.sum
+
+      - name: Setup Python
+        if: matrix.setup == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: ${{ matrix.path }}/requirements.txt
+
+      - name: Install dependencies - Node.js/NestJS
+        if: matrix.tech == 'nodejs-nestjs'
+        working-directory: ${{ matrix.path }}
+        run: npm ci
+
+      - name: Install dependencies - Bun
+        if: matrix.tech == 'bun'
+        working-directory: ${{ matrix.path }}
+        run: bun install --frozen-lockfile
+
+      - name: Install dependencies - Go
+        if: matrix.tech == 'go-gin'
+        working-directory: ${{ matrix.path }}
+        run: go mod download
+
+      - name: Install dependencies - Python
+        if: matrix.tech == 'python-fastapi'
+        working-directory: ${{ matrix.path }}
+        run: pip install -r requirements.txt
+
+      # LINTING
+      - name: Lint - Node.js/NestJS
+        if: matrix.tech == 'nodejs-nestjs'
+        working-directory: ${{ matrix.path }}
+        run: npm run lint
+
+      - name: Lint - Bun
+        if: matrix.tech == 'bun'
+        working-directory: ${{ matrix.path }}
+        run: bun run lint
+
+      - name: Lint - Go
+        if: matrix.tech == 'go-gin'
+        working-directory: ${{ matrix.path }}
+        run: golangci-lint run ./...
+
+      - name: Lint - Python
+        if: matrix.tech == 'python-fastapi'
+        working-directory: ${{ matrix.path }}
+        run: ruff check .
+
+      # TYPE CHECK
+      - name: Type Check - Node.js/NestJS
+        if: matrix.tech == 'nodejs-nestjs'
+        working-directory: ${{ matrix.path }}
+        run: npm run typecheck
+
+      - name: Type Check - Bun
+        if: matrix.tech == 'bun'
+        working-directory: ${{ matrix.path }}
+        run: bun run typecheck
+
+      - name: Type Check - Go
+        if: matrix.tech == 'go-gin'
+        working-directory: ${{ matrix.path }}
+        run: go vet ./...
+
+      - name: Type Check - Python
+        if: matrix.tech == 'python-fastapi'
+        working-directory: ${{ matrix.path }}
+        run: mypy .
+
+      # TESTS
+      - name: Test - Node.js/NestJS
+        if: matrix.tech == 'nodejs-nestjs'
+        working-directory: ${{ matrix.path }}
+        run: npm run test
+
+      - name: Test - Bun
+        if: matrix.tech == 'bun'
+        working-directory: ${{ matrix.path }}
+        run: bun run test
+
+      - name: Test - Go
+        if: matrix.tech == 'go-gin'
+        working-directory: ${{ matrix.path }}
+        run: go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Test - Python
+        if: matrix.tech == 'python-fastapi'
+        working-directory: ${{ matrix.path }}
+        run: pytest --cov=. --cov-report=xml
+
+      # BUILD DOCKER IMAGE
+      - name: Build Docker image
+        working-directory: ${{ matrix.path }}
+        run: |
+          docker build \
+            --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+            --build-arg VCS_REF=${{ github.sha }} \
+            --build-arg VERSION=${{ github.ref_name }} \
+            -t benchmark-${{ matrix.tech }}:latest \
+            -t benchmark-${{ matrix.tech }}:${{ github.sha }} \
+            .
+
+      # SECURITY SCAN
+      - name: Run Trivy scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          scan-ref: 'benchmark-${{ matrix.tech }}:latest'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
+      # UPLOAD COVERAGE
+      - name: Upload coverage - Go
+        if: matrix.tech == 'go-gin'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-go
+          path: ${{ matrix.path }}/coverage.out
+
+      - name: Upload coverage - Python
+        if: matrix.tech == 'python-fastapi'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-python
+          path: ${{ matrix.path }}/coverage.xml
+
+  benchmark:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'run benchmark')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run k6 via Docker
+        run: |
+          docker compose up -d
+          
+          # Wait for services to be healthy
+          echo "Waiting for services to be ready..."
+          sleep 30
+          
+          # Run benchmarks
+          for port in 3000 3001 3002 3003; do
+            tech=$(echo $port | sed 's/3000/nodejs-nestjs/;s/3001/bun/;s/3002/go-gin/;s/3003/python-fastapi/')
+            echo "Running benchmark for $tech on port $port"
+            
+            docker run --rm \
+              -e BASE_URL="http://host.docker.internal:$port" \
+              -v "${{ github.workspace }}/benchmarks:/scripts" \
+              grafana/k6:latest run \
+              --out json="/scripts/results/${tech}_load_$(date +%Y%m%d_%H%M%S).json" \
+              /scripts/k6/load.js || true
+          done
+          
+          docker compose down
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmarks/results/
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-artifacts
+          path: benchmarks/
+          retention-days: 30
+
+  notify:
+    needs: [lint-and-test, benchmark]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Lint & Test" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ needs.lint-and-test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.benchmark.result }}" != "skipped" ]; then
+            echo "### Benchmark" >> $GITHUB_STEP_SUMMARY
+            echo "- Status: ${{ needs.benchmark.result }}" >> $GITHUB_STEP_SUMMARY
+          fi
