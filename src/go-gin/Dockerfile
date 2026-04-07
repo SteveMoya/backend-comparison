@@ -9,7 +9,8 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=1 GOOS=linux go build -o server .
+WORKDIR /app
+RUN CGO_ENABLED=1 GOOS=linux go build -mod=mod -o server .
 
 FROM alpine:latest
 

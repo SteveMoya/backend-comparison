@@ -1,11 +1,5 @@
-import { Elysia, t } from 'elysia';
+import { Elysia } from 'elysia';
 import { query, queryOne, execute, type Order } from '../database/db';
-
-const createOrderSchema = t.Object({
-  userId: t.number(),
-  amount: t.number({ minimum: 0 }),
-  status: t.optional(t.Union([t.Literal('pending'), t.Literal('completed'), t.Literal('cancelled')])),
-});
 
 export const ordersRouter = new Elysia({ prefix: '/api/orders' })
   .post('/', async ({ body }) => {
@@ -25,8 +19,6 @@ export const ordersRouter = new Elysia({ prefix: '/api/orders' })
       [userId, amount, status]
     );
     return result;
-  }, {
-    body: createOrderSchema,
   })
   .get('/', async () => {
     const orders = await query<Order>(
@@ -55,8 +47,6 @@ export const ordersRouter = new Elysia({ prefix: '/api/orders' })
       throw new Error('Order not found');
     }
     return order;
-  }, {
-    params: t.Object({ id: t.String() }),
   })
   .put('/:id', async ({ params: { id }, body }) => {
     const { status } = body as { status: string };
@@ -72,9 +62,6 @@ export const ordersRouter = new Elysia({ prefix: '/api/orders' })
       [status, orderId]
     );
     return result;
-  }, {
-    params: t.Object({ id: t.String() }),
-    body: t.Object({ status: t.Union([t.Literal('pending'), t.Literal('completed'), t.Literal('cancelled')]) }),
   })
   .delete('/:id', async ({ params: { id }, set }) => {
     const orderId = parseInt(id);
@@ -86,6 +73,4 @@ export const ordersRouter = new Elysia({ prefix: '/api/orders' })
     
     await execute('DELETE FROM orders WHERE id = $1', [orderId]);
     set.status = 204;
-  }, {
-    params: t.Object({ id: t.String() }),
   });

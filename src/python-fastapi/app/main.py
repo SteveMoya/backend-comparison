@@ -4,13 +4,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import users, orders
-from app.models import base
+from app.models import Base
 from app.database import engine
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    base.Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
     yield
 
 

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"app/internal/database"
+	"app/internal/models"
 	"github.com/gin-gonic/gin"
-	"go-gin/internal/database"
-	"go-gin/internal/models"
 )
 
 // OrdersHandlers handles order-related requests

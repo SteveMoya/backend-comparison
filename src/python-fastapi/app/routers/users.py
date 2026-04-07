@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from pydantic import BaseModel, EmailStr, ConfigDict
 from sqlalchemy.orm import Session
@@ -7,16 +8,6 @@ from app.database import get_db
 from app.models import User, Order, OrderStatus
 
 router = APIRouter()
-
-
-class UserCreate(BaseModel):
-    name: str
-    email: EmailStr
-
-
-class UserUpdate(BaseModel):
-    name: Optional[str] = None
-    email: Optional[EmailStr] = None
 
 
 class UserResponse(BaseModel):
@@ -36,6 +27,16 @@ class UserStats(BaseModel):
     totalOrders: int
     totalAmount: float
     avgAmount: float
+
+
+class UserCreate(BaseModel):
+    name: str
+    email: EmailStr
+
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=UserResponse)
@@ -124,6 +125,3 @@ def get_user_stats(user_id: int, db: Session = Depends(get_db)):
     avg_amount = total_amount / total_orders if total_orders > 0 else 0
     
     return {"totalOrders": total_orders, "totalAmount": total_amount, "avgAmount": avg_amount}
-
-
-from datetime import datetime

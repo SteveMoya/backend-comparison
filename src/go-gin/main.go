@@ -3,21 +3,29 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"go-gin/cmd/server"
-	_ "go-gin/docs"
+
+	"app/cmd/server"
+	_ "app/docs"
+	"app/internal/database"
 )
 
 func main() {
+	if err := database.InitDB(); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer database.CloseDB()
+
 	r := gin.Default()
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status":    "ok",
-			"timestamp": log.Now().UnixMilli(),
+			"timestamp": time.Now().UnixMilli(),
 		})
 	})
 

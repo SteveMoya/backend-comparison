@@ -1,8 +1,8 @@
 package server
 
 import (
+	"app/internal/handlers"
 	"github.com/gin-gonic/gin"
-	"go-gin/internal/handlers"
 )
 
 func SetupRoutes(r *gin.Engine) {
