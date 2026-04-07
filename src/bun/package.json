@@ -1,0 +1,25 @@
+{
+  "name": "backend-comparison-bun",
+  "version": "1.0.0",
+  "description": "Bun implementation for backend comparison",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "test": "bun test",
+    "typecheck": "bun tsc --noEmit",
+    "lint": "bun run eslint ."
+  },
+  "dependencies": {
+    "@elysiajs/cors": "^1.0.0",
+    "@elysiajs/swagger": "^1.0.0",
+    "elysia": "^1.0.0",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.0.0",
+    "@types/pg": "^8.11.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  }
+}
