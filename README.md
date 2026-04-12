@@ -14,6 +14,7 @@ Comparar tecnologías backend mediante benchmarks de rendimiento, consumo de rec
 | Bun | 3001 | ✅ Completado |
 | Go + Gin | 3002 | ✅ Completado |
 | Python + FastAPI | 3003 | ✅ Completado |
+| AstroJS + Bun | 3004 | ✅ Completado |
 
 ### Infraestructura
 
@@ -24,12 +25,12 @@ Comparar tecnologías backend mediante benchmarks de rendimiento, consumo de rec
 
 ### 🏆 Ganador: Go/Gin
 
-| Escenario | Go/Gin | Bun | Node.js/NestJS | Python/FastAPI |
-|-----------|--------|-----|----------------|----------------|
-| **Smoke (10 VUs)** | 2,012 RPS | 1,946 RPS | 1,056 RPS | 495 RPS |
-| **Load 50** | 588 RPS | 549 RPS | 565 RPS | 300 RPS |
-| **Load 100** | 457 RPS | 413 RPS | 328 RPS | 4 RPS* |
-| **Stress 1000** | 425 RPS | 418 RPS | 324 RPS | 31 RPS* |
+| Escenario | Go/Gin | Bun | Node.js/NestJS | Python/FastAPI | AstroJS/Bun |
+|-----------|--------|-----|----------------|----------------|-------------|
+| **Smoke (10 VUs)** | 2,012 RPS | 1,946 RPS | 1,056 RPS | 495 RPS | TBD |
+| **Load 50** | 588 RPS | 549 RPS | 565 RPS | 300 RPS | TBD |
+| **Load 100** | 457 RPS | 413 RPS | 328 RPS | 4 RPS* | TBD |
+| **Stress 1000** | 425 RPS | 418 RPS | 324 RPS | 31 RPS* | TBD |
 
 *Python falló bajo carga alta
 
@@ -41,6 +42,7 @@ Comparar tecnologías backend mediante benchmarks de rendimiento, consumo de rec
 | Node.js/NestJS | 43 MB |
 | Bun | 61 MB |
 | Python/FastAPI | 76 MB |
+| AstroJS/Bun | TBD |
 
 ## Estructura del Proyecto
 
@@ -178,6 +180,7 @@ docker compose down
 | Microservicios rápidos | Bun |
 | Equipos JavaScript | Node.js/NestJS |
 | Prototyping/ML services | Python/FastAPI |
+| Fullstack + SSR | AstroJS/Bun |
 
 ## Documentación Adicional
 
