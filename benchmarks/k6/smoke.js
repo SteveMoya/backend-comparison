@@ -18,6 +18,8 @@ export const options = {
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
 const API_BASE = `${BASE_URL}/api`;
 
+// Smoke test: 10 VUs, 1min - Full CRUD operations
+
 export default function () {
   const payload = JSON.stringify({
     name: `User-${__VU}-${Date.now()}`,

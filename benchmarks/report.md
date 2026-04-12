@@ -2,11 +2,12 @@
 
 ## Resumen Ejecutivo
 
-Este informe presenta los resultados de benchmarks comparativos entre 4 tecnologías backend:
+Este informe presenta los resultados de benchmarks comparativos entre 5 tecnologías backend:
 - **Node.js/NestJS** (Puerto 3000)
 - **Bun** (Puerto 3001)
 - **Go/Gin** (Puerto 3002)
 - **Python/FastAPI** (Puerto 3003)
+- **AstroJS/Bun** (Puerto 3004)
 
 ---
 
@@ -18,6 +19,7 @@ Este informe presenta los resultados de benchmarks comparativos entre 4 tecnolog
 | **Bun** | 1,946 | 11ms | 75% |
 | **Node.js/NestJS** | 1,056 | 21.4ms | 75% |
 | **Python/FastAPI** | 495 | 36.73ms | 60% |
+| **AstroJS/Bun** | TBD | TBD | TBD |
 
 ### Análisis
 - **Go/Gin** lidera con mayor throughput (2,012 RPS) y mejor latencia p95
@@ -35,6 +37,7 @@ Este informe presenta los resultados de benchmarks comparativos entre 4 tecnolog
 | **Node.js/NestJS** | 565 | 81.46ms | 108.2ms | 0% |
 | **Bun** | 549 | 93.38ms | 103.11ms | 0% |
 | **Python/FastAPI** | 300 | 210.01ms | 252.61ms | 0% |
+| **AstroJS/Bun** | TBD | TBD | TBD | TBD |
 
 ### Análisis
 - **Go/Gin** mejor throughput bajo carga
@@ -52,6 +55,7 @@ Este informe presenta los resultados de benchmarks comparativos entre 4 tecnolog
 | **Bun** | 0.28% | 61.28 MB |
 | **Node.js/NestJS** | 0.00% | 43.79 MB |
 | **Python/FastAPI** | 0.12% | 75.66 MB |
+| **AstroJS/Bun** | TBD | TBD |
 | **PostgreSQL** | 0.00% | 112.4 MB |
 | **Redis** | 0.39% | 14.93 MB |
 
@@ -66,13 +70,13 @@ Este informe presenta los resultados de benchmarks comparativos entre 4 tecnolog
 
 ### Tabla Resumen
 
-| Criterio | Go/Gin | Bun | Node.js/NestJS | Python/FastAPI |
-|-----------|--------|-----|----------------|----------------|
-| **RPS (Smoke)** | 🥇 2,012 | 🥈 1,946 | 1,056 | 495 |
-| **RPS (Load)** | 🥇 588 | 🥉 549 | 🥈 565 | 300 |
-| **Latencia p95** | 🥇 13.65ms | 🥇 11ms | 21.4ms | 36.73ms |
-| **Memoria** | 🥇 36MB | 61MB | 43MB | 76MB |
-| **Facilidad impl.** | Alta | Alta | Alta | Alta |
+| Criterio | Go/Gin | Bun | Node.js/NestJS | Python/FastAPI | AstroJS/Bun |
+|-----------|--------|-----|----------------|----------------|-------------|
+| **RPS (Smoke)** | 🥇 2,012 | 🥈 1,946 | 1,056 | 495 | TBD |
+| **RPS (Load)** | 🥇 588 | 🥉 549 | 🥈 565 | 300 | TBD |
+| **Latencia p95** | 🥇 13.65ms | 🥇 11ms | 21.4ms | 36.73ms | TBD |
+| **Memoria** | 🥇 36MB | 61MB | 43MB | 76MB | TBD |
+| **Facilidad impl.** | Alta | Alta | Alta | Alta | Alta |
 
 ---
 
@@ -99,6 +103,11 @@ Este informe presenta los resultados de benchmarks comparativos entre 4 tecnolog
 - Mayor consumo de memoria
 - Ventaja: desarrollo rápido y código conciso
 
+### Quinto Lugar: **AstroJS/Bun**
+- Framework fullstack con SSR
+-Excelente para proyectos que combinan frontend y backend
+- Requiere benchmark para posicionamiento final
+
 ---
 
 ## 6. Recomendaciones
@@ -109,6 +118,7 @@ Este informe presenta los resultados de benchmarks comparativos entre 4 tecnolog
 | Microservicios rápidos | **Bun** |
 | Equipos JavaScript | **Node.js/NestJS** |
 | Prototyping/ML services | **Python/FastAPI** |
+| Fullstack + SSR | **AstroJS/Bun** |
 
 ---
 

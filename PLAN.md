@@ -139,6 +139,7 @@ src/
 | 🥈 2 | **Bun** | Excelente latencia, buen rendimiento |
 | 🥉 3 | **Node.js/NestJS** | Consistente, gran ecosistema |
 | 4 | **Python/FastAPI** | Desarrollo rápido, pero no escala |
+| 5 | **AstroJS/Bun** | Framework fullstack, SSR |
 
 ### Recomendaciones por Caso de Uso
 

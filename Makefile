@@ -16,6 +16,7 @@ help:
 install:
 	cd src/nodejs-nestjs && npm ci
 	cd src/bun && bun install --frozen-lockfile
+	cd src/astrojs-bun && bun install --frozen-lockfile
 	cd src/go-gin && go mod download
 	cd src/python-fastapi && pip install -r requirements.txt
 
@@ -31,18 +32,21 @@ down:
 test:
 	cd src/nodejs-nestjs && npm test
 	cd src/bun && bun test
+	cd src/astrojs-bun && bun test
 	cd src/go-gin && go test ./...
 	cd src/python-fastapi && pytest
 
 lint:
 	cd src/nodejs-nestjs && npm run lint || true
 	cd src/bun && bun run lint || true
+	cd src/astrojs-bun && bun run lint || true
 	cd src/go-gin && golangci-lint run ./... || true
 	cd src/python-fastapi && ruff check . || true
 
 typecheck:
 	cd src/nodejs-nestjs && npm run typecheck || true
 	cd src/bun && bun run typecheck || true
+	cd src/astrojs-bun && bun run typecheck || true
 	cd src/go-gin && go vet ./... || true
 	cd src/python-fastapi && mypy . || true
 
