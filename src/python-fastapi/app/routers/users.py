@@ -1,11 +1,12 @@
-from typing import Optional
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from pydantic import BaseModel, EmailStr, ConfigDict
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel, ConfigDict, EmailStr
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import User, Order, OrderStatus
+from app.models import Order, User
 
 router = APIRouter()
 

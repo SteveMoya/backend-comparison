@@ -66,7 +66,10 @@ func (h *UsersHandlers) GetUsers(c *gin.Context) {
 	}
 
 	var total int
-	database.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&total)
+	if err := database.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&total); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"data":  users,
@@ -230,10 +233,13 @@ func (h *UsersHandlers) GetUserStats(c *gin.Context) {
 		AvgAmount   float64 `json:"avgAmount"`
 	}
 
-	database.DB.QueryRow(
+	if err := database.DB.QueryRow(
 		"SELECT COUNT(*), COALESCE(SUM(amount), 0), COALESCE(AVG(amount), 0) FROM orders WHERE user_id = $1",
 		id,
-	).Scan(&stats.TotalOrders, &stats.TotalAmount, &stats.AvgAmount)
+	).Scan(&stats.TotalOrders, &stats.TotalAmount, &stats.AvgAmount); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, stats)
 }
