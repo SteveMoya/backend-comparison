@@ -1,0 +1,154 @@
+name: Runtime Bench
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Todos los lunes a las 04:00 UTC
+    - cron: '0 4 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Manifiestos y pruebas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate adapter manifests
+        run: node scripts/bench.mjs validate
+
+      - name: List adapters
+        run: node scripts/bench.mjs list
+
+      - name: Run test suite
+        run: npm test
+
+  discover:
+    name: Descubrir adaptadores
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    outputs:
+      adapters: ${{ steps.list.outputs.adapters }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Export adapter matrix
+        id: list
+        run: echo "adapters=$(node scripts/bench.mjs list --json)" >> "$GITHUB_OUTPUT"
+
+  benchmark:
+    name: Benchmark ${{ matrix.adapter.id }}
+    needs: discover
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        adapter: ${{ fromJson(needs.discover.outputs.adapters) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Start stack for ${{ matrix.adapter.id }}
+        run: docker compose up -d --build postgres redis ${{ matrix.adapter.service }}
+
+      - name: Wait for health
+        run: |
+          url="http://localhost:${{ matrix.adapter.port }}${{ matrix.adapter.healthPath }}"
+          for attempt in $(seq 1 90); do
+            if curl -fsS "$url" > /dev/null; then
+              echo "healthy: $url"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "adapter did not become healthy: $url"
+          docker compose logs
+          exit 1
+
+      - name: Check contract
+        run: >
+          node scripts/bench.mjs check
+          --adapter ${{ matrix.adapter.id }}
+          --base-url http://localhost:${{ matrix.adapter.port }}
+
+      - name: Run load scenario
+        run: >
+          node scripts/bench.mjs run
+          --adapter ${{ matrix.adapter.id }}
+          --base-url http://localhost:${{ matrix.adapter.port }}
+          --scenario load
+          --commit ${{ github.sha }}
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.adapter.id }}
+          path: results/*.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v
+
+  publish:
+    name: Regenerar leaderboard
+    needs: benchmark
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Download all results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: results-*
+          path: leaderboard/results
+          merge-multiple: true
+
+      - name: Regenerate leaderboard
+        run: node scripts/bench.mjs leaderboard
+
+      - name: Upload leaderboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: leaderboard
+          path: LEADERBOARD.md
+
+      - name: Job summary
+        run: cat LEADERBOARD.md >> "$GITHUB_STEP_SUMMARY"
