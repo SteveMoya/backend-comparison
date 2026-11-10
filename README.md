@@ -1,153 +1,160 @@
 <p align="center">
-  <img src="https://iili.io/C1OgGp4.png" alt="Backend Comparison" width="100%">
+  <img src="https://iili.io/C1OgGp4.png" alt="Runtime Bench" width="100%">
 </p>
 
-<h1 align="center">⚡ Backend Performance Comparison</h1>
+<h1 align="center">⚡ Runtime Bench</h1>
 
 <p align="center">
-  <strong>Benchmark comparativo de frameworks backend: Go/Gin, Bun, Node.js/NestJS y Python/FastAPI</strong>
+  <strong>Matriz reproducible de benchmarks para runtimes y frameworks backend</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Go-1.21-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
-  <img src="https://img.shields.io/badge/Bun-1.x-000000?style=for-the-badge&logo=bun&logoColor=white" alt="Bun">
   <img src="https://img.shields.io/badge/Node.js-20-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/Bun-1.x-000000?style=for-the-badge&logo=bun&logoColor=white" alt="Bun">
+  <img src="https://img.shields.io/badge/Go-1.21-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
   <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/Licencia-MIT-green?style=for-the-badge" alt="MIT">
 </p>
 
 ---
 
-## 🎯 Objetivo
+## 🎯 Qué es esto
 
-Comparar tecnologías backend modernas mediante **benchmarks de rendimiento reales**, evaluando:
-- 📊 Throughput (requests/second)
-- ⚡ Latencia (p95, p99)
-- 💾 Consumo de recursos (CPU, memoria)
-- 🏗️ Arquitectura y mantenibilidad
-- 🚀 Facilidad de despliegue
+La mayoría de los benchmarks de frameworks backend se publican una vez, con hardware desconocido, y envejecen en silencio. Nadie los reproduce y todo el mundo los cita.
 
----
+Runtime Bench invierte eso: la misma API, el mismo esquema y el mismo generador de carga para todos los adaptadores. Cada resultado declara el commit, el hardware y la metodología. Contribuir es agregar un adaptador.
 
-## 📊 Resultados de Benchmarks
+**Estado: v0.1.** La infraestructura de medición está lista; los resultados publicados se construyen commit por commit.
 
-### Smoke Test (10 usuarios, 1 min)
+## 📊 Resultados
+
+- **Leaderboard:** [LEADERBOARD.md](LEADERBOARD.md) — se genera desde `leaderboard/results/`, nunca se edita a mano.
+- **Metodología:** [docs/methodology.md](docs/methodology.md) — qué se mide, cómo y qué límites tiene.
+- **Contrato:** [docs/adapter-contract.md](docs/adapter-contract.md) — qué tiene que responder un adaptador.
+
+Todavía no hay resultados publicados de v0.1. Cuando haya, cada fila va a declarar commit, entorno y escenario. Un número sin esas tres cosas no entra.
+
+### Resultados legacy
+
+Los números de abajo vienen de la versión anterior del proyecto: hardware no declarado, sin commit asociado y sin posibilidad de reproducirlos. Se archivan como referencia histórica, **no como resultados vigentes**.
+
+<details>
+<summary>Benchmarks legacy (no comparables con v0.1)</summary>
+
+#### Smoke Test (10 usuarios, 1 min)
 
 | Tecnología | RPS | p95 Latencia | Checks OK |
 |------------|-----|--------------|-----------|
-| **Go/Gin** | 2,012 | 13.65ms | 87.5% |
-| **Bun** | 1,946 | 11ms | 75% |
-| **Node.js/NestJS** | 1,056 | 21.4ms | 75% |
-| **Python/FastAPI** | 495 | 36.73ms | 60% |
+| Go/Gin | 2,012 | 13.65ms | 87.5% |
+| Bun | 1,946 | 11ms | 75% |
+| Node.js/NestJS | 1,056 | 21.4ms | 75% |
+| Python/FastAPI | 495 | 36.73ms | 60% |
 
-### Load Test (50 usuarios, 1 min)
+#### Load Test (50 usuarios, 1 min)
 
 | Tecnología | RPS | p95 Latencia | p99 Latencia |
 |------------|-----|--------------|--------------|
-| **Go/Gin** | 588 | 114.41ms | 136.59ms |
-| **Node.js/NestJS** | 565 | 81.46ms | 108.2ms |
-| **Bun** | 549 | 93.38ms | 103.11ms |
-| **Python/FastAPI** | 300 | 210.01ms | 252.61ms |
+| Go/Gin | 588 | 114.41ms | 136.59ms |
+| Node.js/NestJS | 565 | 81.46ms | 108.2ms |
+| Bun | 549 | 93.38ms | 103.11ms |
+| Python/FastAPI | 300 | 210.01ms | 252.61ms |
 
-### Stress Test (1000 usuarios, 3 min)
+#### Stress Test (1000 usuarios, 3 min)
 
 | Tecnología | RPS | p95 Latencia | Observaciones |
 |------------|-----|--------------|---------------|
-| **Go/Gin** | 425 | 4.5s | ✅ Estable |
-| **Bun** | 418 | 4.5s | ✅ Estable |
-| **Node.js/NestJS** | 324 | 2.9s | ⚠️ p99 excedido |
-| **Python/FastAPI** | 31 | 2m0s | ❌ Falló/crash |
+| Go/Gin | 425 | 4.5s | Estable |
+| Bun | 418 | 4.5s | Estable |
+| Node.js/NestJS | 324 | 2.9s | p99 excedido |
+| Python/FastAPI | 31 | 2m0s | Falló |
 
-### Consumo de Recursos
+</details>
 
-| Tecnología | CPU % | Memoria |
-|------------|-------|---------|
-| **Go/Gin** | 1.65% | 36.38 MB |
-| **Bun** | 0.28% | 61.28 MB |
-| **Node.js/NestJS** | 0.00% | 43.79 MB |
-| **Python/FastAPI** | 0.12% | 75.66 MB |
+## 🛠️ Adaptadores
 
----
+Cada adaptador es una implementación de la misma API en un runtime y framework distintos. El manifiesto vive en `adapters/<id>/adapter.json`.
 
-## 🏆 Ranking General
+| Adaptador | Runtime | Framework | Puerto |
+| --- | --- | --- | --- |
+| `nodejs-nestjs` | Node.js 20 | NestJS + TypeORM | 3000 |
+| `bun` | Bun 1.x | Elysia + Bun SQL | 3001 |
+| `go-gin` | Go 1.21 | Gin + sqlx | 3002 |
+| `python-fastapi` | Python 3.11 | FastAPI + SQLAlchemy | 3003 |
+| `astrojs-bun` | Bun | Astro + Supabase | 3004 |
 
-| Posición | Tecnología | Puntaje | Ventajas Clave |
-|----------|------------|---------|----------------|
-| 🥇 1 | **Go/Gin** | 95/100 | Mejor throughput, menor latencia, menor memoria |
-| 🥈 2 | **Bun** | 88/100 | Excelente latencia, buen rendimiento, runtime moderno |
-| 🥉 3 | **Node.js/NestJS** | 82/100 | Consistente, gran ecosistema, TypeScript nativo |
-| 4 | **Python/FastAPI** | 65/100 | Desarrollo rápido, pero no escala bien |
+Faltan adaptadores para Deno, Express, Fastify y Hono. Son exactamente el tipo de PR que el proyecto busca; ver [CONTRIBUTING.md](CONTRIBUTING.md).
 
----
-
-## 🛠️ Stack Tecnológico
-
-### Aplicaciones
-| Tecnología | Framework | ORM | Puerto |
-|------------|-----------|-----|--------|
-| Go | Gin | sqlx + pq | 3002 |
-| TypeScript | NestJS | TypeORM | 3000 |
-| TypeScript | Elysia (Bun) | Bun SQL | 3001 |
-| Python | FastAPI | SQLAlchemy | 3003 |
-
-### Infraestructura
-- **Base de datos:** PostgreSQL 15
-- **Cache:** Redis 7
-- **Orquestación:** Docker Compose
-- **Load Testing:** k6
-
----
-
-## 📁 Estructura del Proyecto
+## 📁 Estructura
 
 ```
-backend-comparison/
-├── src/
-│   ├── nodejs-nestjs/     # NestJS con TypeORM
-│   ├── bun/              # Elysia + PostgreSQL
-│   ├── go-gin/           # Gin + sqlx
-│   └── python-fastapi/   # FastAPI + SQLAlchemy
-├── benchmarks/
-│   ├── run-benchmarks.sh # Script automatizado
-│   ├── k6/               # Scripts de carga k6
-│   └── report.md         # Informe completo
-├── docker-compose.yml     # Orquestación de servicios
-├── Makefile              # Comandos útiles
-└── PLAN.md               # Plan completo del proyecto
+runtime-bench/
+├── adapters/                  # Un manifiesto por adaptador
+├── scripts/
+│   ├── bench.mjs              # CLI: list, validate, check, run, leaderboard
+│   └── lib/                   # Manifiestos, contrato, resultados, leaderboard
+├── docs/
+│   ├── adapter-contract.md    # Contrato HTTP exacto
+│   └── methodology.md         # Qué se mide y cómo
+├── leaderboard/results/       # Resultados publicados (JSON por commit)
+├── src/                       # Implementaciones
+├── benchmarks/                # Scripts k6 y reporte histórico
+├── tests/                     # node --test, sin Docker
+├── docker-compose.yml
+└── init-db.sql
 ```
 
----
+## 🚀 Uso
 
-## 🚀 Instalación y Uso
+### Requisitos
 
-### 1. Clonar el repositorio
+Node.js 20+, Docker y Docker Compose.
+
 ```bash
-git clone https://github.com/SteveMoya/backend-comparison.git
-cd backend-comparison
+npm install
 ```
 
-### 2. Levantar todos los servicios
+### Levantar todo
+
 ```bash
-docker-compose up -d
+docker compose up -d --build
 ```
 
-### 3. Ejecutar benchmarks
+### Verificar adaptadores
+
 ```bash
-cd benchmarks
-./run-benchmarks.sh
+node scripts/bench.mjs validate
+node scripts/bench.mjs list
+node scripts/bench.mjs check --adapter go-gin --base-url http://localhost:3002
 ```
 
-### 4. Acceder a las APIs
-- Node.js: http://localhost:3000/api/users
-- Bun: http://localhost:3001/api/users
-- Go: http://localhost:3002/api/users
-- Python: http://localhost:3003/api/users
+### Medir
 
----
+```bash
+# 10 segundos, 10 conexiones
+node scripts/bench.mjs run --adapter go-gin --base-url http://localhost:3002 --scenario smoke
 
-## 📡 API Endpoints
+# 60 segundos, 50 conexiones
+node scripts/bench.mjs run --adapter go-gin --base-url http://localhost:3002 --scenario load
+```
 
-Todas las aplicaciones implementan el mismo CRUD para comparación justa:
+Cada corrida escribe un JSON `runtime-bench.result.v1` en `results/` con commit, entorno, carga y métricas.
+
+### Publicar un resultado
+
+```bash
+cp results/*.json leaderboard/results/
+node scripts/bench.mjs leaderboard
+```
+
+### Pruebas
+
+```bash
+npm test
+```
+
+## 📡 API
+
+Todas las implementaciones exponen el mismo contrato.
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
@@ -156,68 +163,23 @@ Todas las aplicaciones implementan el mismo CRUD para comparación justa:
 | GET | `/api/users/:id` | Obtener usuario por ID |
 | PUT | `/api/users/:id` | Actualizar usuario |
 | DELETE | `/api/users/:id` | Eliminar usuario |
-| GET | `/api/users/:id/orders` | JOIN query (performance test) |
-| GET | `/api/users/:id/stats` | Agregación (performance test) |
+| GET | `/api/users/:id/orders` | JOIN query |
+| GET | `/api/users/:id/stats` | Agregación |
+| POST | `/api/orders` | Crear orden |
+| GET | `/api/orders` | Listar órdenes |
+| GET | `/api/orders/aggregation` | Agregación de órdenes |
 
----
+## 🤝 Contribuir
 
-## 💡 Recomendaciones por Caso de Uso
+Se busca:
 
-| Caso de Uso | Tecnología Recomendada | Razón |
-|-------------|------------------------|-------|
-| **APIs de alto rendimiento** | Go/Gin | Mayor throughput, menor latencia |
-| **Microservicios rápidos** | Bun/Elysia | Runtime moderno, excelente DX |
-| **Equipos JavaScript** | Node.js/NestJS | Ecosistema maduro, TypeScript |
-| **Prototyping/ML services** | Python/FastAPI | Desarrollo rápido, integración ML |
-| **Alta concurrencia** | Go/Gin | Goroutines, eficiente en memoria |
+- Adaptadores nuevos (Deno, Express, Fastify, Hono).
+- Escenario de escritura.
+- Siembra de datos para medir joins reales.
+- Página estática del leaderboard.
 
----
-
-## 📚 Metodología
-
-### Escenarios de Prueba
-- **Smoke Test:** Validación básica (10 VUs, 1 min)
-- **Load Test:** Carga normal y alta (50-100 VUs, 1 min)
-- **Stress Test:** Límite de ruptura (1000 VUs, 3 min)
-- **Spike Test:** Picos repentinos (10 → 500 VUs, 2 min)
-- **Soak Test:** Carga prolongada (100 VUs, 30 min)
-
-### Métricas Evaluadas
-- Requests per second (RPS)
-- Latencia percentil 95 y 99
-- Tasa de éxito de requests
-- Consumo de CPU y memoria
-- Estabilidad bajo carga extrema
-
----
-
-## 📖 Documentación Completa
-
-Para más detalles técnicos, consulta:
-- **[PLAN.md](PLAN.md)** - Plan completo del proyecto
-- **[benchmarks/report.md](benchmarks/report.md)** - Informe detallado de benchmarks
-- **[sdd/](sdd/)** - Software Design Document
-
----
-
-## 🔧 Tecnologías de Testing
-
-| Herramienta | Propósito |
-|-------------|-----------|
-| **k6** | Load testing y benchmarking |
-| **Docker** | Containerización de servicios |
-| **PostgreSQL** | Base de datos relacional |
-| **Redis** | Cache y sesiones |
-
----
+Leé [CONTRIBUTING.md](CONTRIBUTING.md) antes de abrir un PR. Un adaptador se agrega en menos de una hora.
 
 ## 📝 Licencia
 
 MIT © Steve Moya Cepeda
-
----
-
-<p align="center">
-  <strong>¿Te gustaría ver más benchmarks o comparar otras tecnologías?</strong><br>
-  ¡Abre un issue o contribuye con tus propios tests!
-</p>

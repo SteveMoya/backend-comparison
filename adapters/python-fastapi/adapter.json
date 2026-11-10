@@ -1,0 +1,13 @@
+{
+  "id": "python-fastapi",
+  "name": "Python + FastAPI",
+  "language": "Python",
+  "runtime": "Python",
+  "framework": "FastAPI",
+  "runtimeVersion": "3.11",
+  "source": "src/python-fastapi",
+  "service": "app-python",
+  "port": 3003,
+  "healthPath": "/health",
+  "apiBasePath": "/api"
+}

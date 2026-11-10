@@ -1,0 +1,13 @@
+{
+  "id": "astrojs-bun",
+  "name": "Astro + Bun",
+  "language": "TypeScript",
+  "runtime": "Bun",
+  "framework": "Astro",
+  "runtimeVersion": "5.x",
+  "source": "src/astrojs-bun",
+  "service": "app-astrojs",
+  "port": 3004,
+  "healthPath": "/health",
+  "apiBasePath": "/api"
+}
