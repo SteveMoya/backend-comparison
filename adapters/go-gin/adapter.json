@@ -1,0 +1,13 @@
+{
+  "id": "go-gin",
+  "name": "Go + Gin",
+  "language": "Go",
+  "runtime": "Go",
+  "framework": "Gin",
+  "runtimeVersion": "1.21",
+  "source": "src/go-gin",
+  "service": "app-go",
+  "port": 3002,
+  "healthPath": "/health",
+  "apiBasePath": "/api"
+}

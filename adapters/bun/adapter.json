@@ -1,0 +1,13 @@
+{
+  "id": "bun",
+  "name": "Bun + Elysia",
+  "language": "TypeScript",
+  "runtime": "Bun",
+  "framework": "Elysia",
+  "runtimeVersion": "1.x",
+  "source": "src/bun",
+  "service": "app-bun",
+  "port": 3001,
+  "healthPath": "/health",
+  "apiBasePath": "/api"
+}

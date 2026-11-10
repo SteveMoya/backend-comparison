@@ -1,0 +1,21 @@
+{
+  "name": "runtime-bench",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Benchmark matrix reproducible para runtimes y frameworks backend",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "bench": "node scripts/bench.mjs",
+    "bench:validate": "node scripts/bench.mjs validate",
+    "bench:list": "node scripts/bench.mjs list",
+    "bench:leaderboard": "node scripts/bench.mjs leaderboard",
+    "test": "node --test tests/"
+  },
+  "devDependencies": {
+    "autocannon": "^8.0.0"
+  }
+}

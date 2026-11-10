@@ -1,0 +1,13 @@
+{
+  "id": "nodejs-nestjs",
+  "name": "Node.js + NestJS",
+  "language": "TypeScript",
+  "runtime": "Node.js",
+  "framework": "NestJS",
+  "runtimeVersion": "20",
+  "source": "src/nodejs-nestjs",
+  "service": "app-nodejs",
+  "port": 3000,
+  "healthPath": "/health",
+  "apiBasePath": "/api"
+}

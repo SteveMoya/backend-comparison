@@ -1,4 +1,4 @@
-.PHONY: help install build up down test clean lint typecheck
+.PHONY: help install build up down test clean lint typecheck bench-validate bench-run leaderboard
 
 help:
 	@echo "Backend Comparison - Available Commands"
@@ -11,6 +11,9 @@ help:
 	@echo "  make lint      - Run linters"
 	@echo "  make typecheck - Run type checkers"
 	@echo "  make clean     - Clean up containers and volumes"
+	@echo "  make bench-validate - Validate adapter manifests"
+	@echo "  make bench-run ADAPTER=go-gin BASE_URL=http://localhost:3002"
+	@echo "  make leaderboard    - Regenerate LEADERBOARD.md"
 	@echo ""
 
 install:
@@ -68,3 +71,19 @@ benchmark-load:
 
 benchmark-stress:
 	./benchmarks/run-benchmarks.sh stress
+
+# Runtime Bench v0.1 (manifiestos + autocannon)
+bench-validate:
+	node scripts/bench.mjs validate
+
+bench-list:
+	node scripts/bench.mjs list
+
+bench-run:
+	node scripts/bench.mjs run --adapter $(ADAPTER) --base-url $(BASE_URL) --scenario $(or $(SCENARIO),smoke)
+
+bench-check:
+	node scripts/bench.mjs check --adapter $(ADAPTER) --base-url $(BASE_URL)
+
+leaderboard:
+	node scripts/bench.mjs leaderboard
