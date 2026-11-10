@@ -2,8 +2,10 @@ import { Elysia } from 'elysia';
 import { query, queryOne, execute, type User, type Order } from '../database/db';
 
 export const usersRouter = new Elysia({ prefix: '/api/users' })
-  .post('/', async ({ body }) => {
+  .post('/', async ({ body, set }) => {
     const { name, email } = body as { name: string; email: string };
+    // Contract: POST /api/users must answer 201 like every other adapter.
+    set.status = 201;
     
     if (!name || name.length > 100) {
       throw new Error('Invalid name');
