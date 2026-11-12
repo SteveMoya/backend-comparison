@@ -4,7 +4,7 @@
   "language": "TypeScript",
   "runtime": "Bun",
   "framework": "Astro",
-  "runtimeVersion": "5.x",
+  "runtimeVersion": "1.x",
   "source": "src/astrojs-bun",
   "service": "app-astrojs",
   "port": 3004,
