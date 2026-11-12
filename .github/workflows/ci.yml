@@ -20,7 +20,7 @@ jobs:
           - tech: nodejs-nestjs
             path: src/nodejs-nestjs
             setup: node
-            node-version: '20'
+            node-version: '24'
           - tech: bun
             path: src/bun
             setup: bun
