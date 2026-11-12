@@ -2,19 +2,19 @@
 
 Generado automáticamente desde los resultados en `leaderboard/results/`. No editar a mano.
 
-Generado: 2026-11-12T03:25:00.257Z
+Generado: 2026-11-12T03:51:21.211Z
 
 ## Escenario: load
 
 | # | Adaptador | Runtime | Framework | RPS | p50 (ms) | p90 (ms) | p99 (ms) | No-2xx | Errores | Commit |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Bun + Elysia | Bun 1.x | Elysia | 5,717 | 9 | 12 | 17 | 0 | 0 | `6d71416` |
-| 2 | Go + Gin | Go 1.21 | Gin | 4,370 | 10 | 21 | 40 | 0 | 0 | `6d71416` |
-| 3 | Astro + Bun | Bun 5.x | Astro | 2,797 | 21 | 26 | 31 | 0 | 0 | `6d71416` |
-| 4 | Node.js + NestJS | Node.js 20 | NestJS | 1,919 | 30 | 33 | 49 | 0 | 0 | `6d71416` |
-| 5 | Python + FastAPI | Python 3.11 | FastAPI | 631 | 84 | 127 | 180 | 0 | 0 | `6d71416` |
+| 1 | Bun + Elysia | Bun 1.x | Elysia | 9,311 | 5 | 8 | 11 | 0 | 0 | `50d94cb` |
+| 2 | Go + Gin | Go 1.21 | Gin | 6,473 | 7 | 14 | 27 | 0 | 0 | `50d94cb` |
+| 3 | Astro + Bun | Bun 1.x | Astro | 3,987 | 14 | 18 | 21 | 0 | 0 | `50d94cb` |
+| 4 | Node.js + NestJS | Node.js 20 | NestJS | 1,463 | 38 | 44 | 63 | 0 | 0 | `50d94cb` |
+| 5 | Python + FastAPI | Python 3.11 | FastAPI | 673 | 79 | 118 | 162 | 0 | 0 | `50d94cb` |
 
-Entorno del resultado más reciente: AMD EPYC 9V74 80-Core Processor (4 núcleos), 16 GiB de RAM, Linux 7.0.0-1019-azure, Node v20.20.2.
+Entorno del resultado más reciente: AMD EPYC 7763 64-Core Processor (4 núcleos), 16 GiB de RAM, Linux 7.0.0-1019-azure, Node v20.20.2.
 
 ## Cómo leer esto
 

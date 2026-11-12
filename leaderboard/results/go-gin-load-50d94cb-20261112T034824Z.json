@@ -1,0 +1,65 @@
+{
+  "schema": "runtime-bench.result.v1",
+  "methodologyVersion": "v0.1",
+  "adapter": "go-gin",
+  "adapterName": "Go + Gin",
+  "runtime": "Go",
+  "framework": "Gin",
+  "language": "Go",
+  "runtimeVersion": "1.21",
+  "scenario": "load",
+  "commit": "50d94cb540d3b2a8430faac90f34e3113e7dd1b3",
+  "startedAt": "2026-11-12T03:48:24.619Z",
+  "durationSeconds": 60,
+  "environment": {
+    "os": "Linux 7.0.0-1019-azure",
+    "platform": "linux",
+    "arch": "x64",
+    "cpuModel": "AMD EPYC 9V74 80-Core Processor",
+    "cpuCores": 4,
+    "totalMemoryBytes": 16759435264,
+    "node": "v20.20.2",
+    "runner": "github-actions"
+  },
+  "workload": {
+    "durationSeconds": 60,
+    "connections": 50,
+    "requests": [
+      {
+        "method": "GET",
+        "path": "/health"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users?page=1&limit=10"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users/1"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users/1/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users/1/stats"
+      }
+    ]
+  },
+  "metrics": {
+    "requestsPerSecond": 6473,
+    "requestsTotal": 388317,
+    "latencyMs": {
+      "average": 7.23,
+      "p50": 7,
+      "p90": 14,
+      "p99": 27,
+      "max": 172
+    },
+    "throughputBytesPerSecond": 3680102,
+    "non2xx": 0,
+    "errors": 0,
+    "timeouts": 0
+  }
+}
