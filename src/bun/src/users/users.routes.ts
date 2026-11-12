@@ -96,10 +96,11 @@ export const usersRouter = new Elysia({ prefix: '/api/users' })
     await execute('DELETE FROM users WHERE id = $1', [userId]);
     set.status = 204;
   })
-  .get('/:id/orders', async ({ params: { id } }) => {
+  .get('/:id/orders', async ({ params: { id }, set }) => {
     const userId = parseInt(id);
     const user = await queryOne<User>('SELECT * FROM users WHERE id = $1', [userId]);
     if (!user) {
+      set.status = 404;
       throw new Error('User not found');
     }
     
@@ -110,10 +111,11 @@ export const usersRouter = new Elysia({ prefix: '/api/users' })
     
     return { ...user, orders };
   })
-  .get('/:id/stats', async ({ params: { id } }) => {
+  .get('/:id/stats', async ({ params: { id }, set }) => {
     const userId = parseInt(id);
     const user = await queryOne<User>('SELECT * FROM users WHERE id = $1', [userId]);
     if (!user) {
+      set.status = 404;
       throw new Error('User not found');
     }
     
