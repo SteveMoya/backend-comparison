@@ -22,7 +22,7 @@ export class Order {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   amount: number;
 
-  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
+  @Column({ type: 'varchar', length: 20, default: OrderStatus.PENDING })
   status: OrderStatus;
 
   @CreateDateColumn({ name: 'created_at' })

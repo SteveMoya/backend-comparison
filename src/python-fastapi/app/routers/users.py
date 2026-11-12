@@ -20,8 +20,18 @@ class UserResponse(BaseModel):
     created_at: datetime
 
 
+class OrderSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    user_id: int
+    amount: float
+    status: str
+    created_at: datetime
+
+
 class UserWithOrders(UserResponse):
-    orders: list = []
+    orders: list[OrderSummary] = []
 
 
 class UserStats(BaseModel):
@@ -62,7 +72,9 @@ def get_users(
     offset = (page - 1) * limit
     users = db.query(User).order_by(User.created_at.desc()).offset(offset).limit(limit).all()
     total = db.query(User).count()
-    return {"data": users, "total": total, "page": page, "limit": limit}
+    # Raw ORM instances are not JSON serializable: serialize through UserResponse.
+    data = [UserResponse.model_validate(user).model_dump(mode="json") for user in users]
+    return {"data": data, "total": total, "page": page, "limit": limit}
 
 
 @router.get("/{user_id}", response_model=UserResponse)
@@ -111,7 +123,15 @@ def get_user_with_orders(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     
     orders = db.query(Order).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).all()
-    return {"id": user.id, "name": user.name, "email": user.email, "created_at": user.created_at, "orders": orders}
+    # Serialized through UserWithOrders: nested ORM objects are handled by
+    # OrderSummary(from_attributes=True).
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "created_at": user.created_at,
+        "orders": orders,
+    }
 
 
 @router.get("/{user_id}/stats", response_model=UserStats)

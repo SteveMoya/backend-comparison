@@ -35,7 +35,18 @@ class Order(Base):
         Integer, ForeignKey("users.id"), nullable=False, index=True
     )
     amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
-    status: Mapped[OrderStatus] = mapped_column(SQLEnum(OrderStatus), default=OrderStatus.PENDING)
+    status: Mapped[OrderStatus] = mapped_column(
+        # init-db.sql defines status as VARCHAR(20): store the values
+        # ("pending", "completed", "cancelled"), not the member names, and
+        # never create a PostgreSQL ENUM type behind the shared schema.
+        SQLEnum(
+            OrderStatus,
+            native_enum=False,
+            length=20,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+        ),
+        default=OrderStatus.PENDING,
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     user: Mapped["User"] = relationship(back_populates="orders")

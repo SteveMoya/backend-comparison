@@ -23,11 +23,27 @@ CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
--- Optional: Add some sample data for testing
--- INSERT INTO users (name, email) VALUES 
---     ('Test User 1', 'test1@example.com'),
---     ('Test User 2', 'test2@example.com'),
---     ('Test User 3', 'test3@example.com');
+-- Deterministic dataset for benchmarks (see docs/methodology.md, section 6).
+-- Idempotent: re-running the init script does not duplicate rows.
+-- 200 users, 800 orders (4 per user). User 1 always exists so the read
+-- scenario exercises real rows instead of 404 paths.
+INSERT INTO users (id, name, email)
+SELECT g, 'Bench User ' || g, 'bench.user' || g || '@runtime-bench.local'
+FROM generate_series(1, 200) AS g
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO orders (id, user_id, amount, status)
+SELECT
+    g,
+    ((g - 1) % 200) + 1,
+    ((g % 490) + 10)::numeric(10, 2),
+    CASE g % 3 WHEN 0 THEN 'completed' WHEN 1 THEN 'pending' ELSE 'cancelled' END
+FROM generate_series(1, 800) AS g
+ON CONFLICT (id) DO NOTHING;
+
+-- Keep sequences ahead of the seeded rows so inserts keep working.
+SELECT setval('users_id_seq', (SELECT COALESCE(MAX(id), 1) FROM users));
+SELECT setval('orders_id_seq', (SELECT COALESCE(MAX(id), 1) FROM orders));
 
 -- Verify tables
 SELECT 'Users table created' AS status;

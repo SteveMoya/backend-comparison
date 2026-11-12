@@ -120,10 +120,18 @@ jobs:
         run: docker compose down -v
 
   publish:
-    name: Regenerar leaderboard
-    needs: benchmark
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    name: Publicar leaderboard
+    needs: [discover, benchmark]
+    # Runs even if some adapters failed: each successful adapter already produced
+    # its artifact, and "a broken adapter does not enter the leaderboard"
+    # (docs/methodology.md, rule 4).
+    if: >-
+      always() &&
+      needs.discover.result == 'success' &&
+      (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -134,7 +142,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Download all results
+      - name: Download results
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           pattern: results-*
@@ -142,13 +151,29 @@ jobs:
           merge-multiple: true
 
       - name: Regenerate leaderboard
-        run: node scripts/bench.mjs leaderboard
+        run: |
+          published=$(ls leaderboard/results/*.json 2>/dev/null | wc -l)
+          if [ "$published" -eq 0 ]; then
+            echo "Ningún adaptador publicó resultados; no se toca LEADERBOARD.md."
+            exit 1
+          fi
+          echo "Resultados publicados: $published"
+          node scripts/bench.mjs leaderboard
+          cat LEADERBOARD.md >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload leaderboard
-        uses: actions/upload-artifact@v4
-        with:
-          name: leaderboard
-          path: LEADERBOARD.md
-
-      - name: Job summary
-        run: cat LEADERBOARD.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Commit published results
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Ref ${GITHUB_REF} distinto de main: se genera el leaderboard pero no se publica."
+            cat LEADERBOARD.md
+            exit 0
+          fi
+          git config user.name "runtime-bench"
+          git config user.email "runtime-bench@users.noreply.github.com"
+          git add LEADERBOARD.md leaderboard/results
+          if git diff --cached --quiet; then
+            echo "Sin cambios en el leaderboard."
+            exit 0
+          fi
+          git commit -m "chore(bench): publicar resultados $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push

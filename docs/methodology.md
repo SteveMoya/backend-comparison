@@ -64,13 +64,25 @@ cp results/*.json leaderboard/results/
 node scripts/bench.mjs leaderboard
 ```
 
-## 6. Límites conocidos de v0.1
+Si el volumen de PostgreSQL viene de antes del conjunto de datos (sección 6), recreálo para que corra el script de siembra: `docker compose down -v && docker compose up -d --build`.
+
+## 6. Conjunto de datos
+
+Todos los adaptadores leen la misma base PostgreSQL, sembrada de forma determinista por `init-db.sql` al crear el volumen desde cero:
+
+- **200 usuarios** (ids 1–200) y **800 pedidos** (4 por usuario).
+- Valores fijos: el monto sale de `(id % 490) + 10` y el estado alterna `completed` / `pending` / `cancelled`, el vocabulario que ya usaban los adaptadores.
+- Idempotente: volver a correr el script no duplica filas y deja las secuencias por delante del máximo sembrado.
+
+Por qué importa: con la base vacía, `GET /api/users/1`, `/users/1/orders` y `/users/1/stats` respondían 404 en todos los adaptadores y el escenario medía el camino de error, no consultas reales. Un número publicado sin este conjunto de datos no es comparable con los de esta versión.
+
+## 7. Límites conocidos de v0.1
 
 - **Solo lectura.** Las escrituras llegan en v0.2; hoy no hay número de `POST` ni de `DELETE`.
 - **Una sola máquina.** No hay comparación cruzada entre hardware.
 - **Loopback.** No se mide la red real, que en producción suele ser el cuello de botella.
 - **Contenedores.** El overhead de Docker afecta a todos los adaptadores, pero no es cero.
 - **`autocannon` como generador de carga.** Es el mismo generador para todos, así que la comparación relativa se sostiene; el techo absoluto es del generador, no del framework.
-- **Datos sin sembrar.** `GET /api/users/1` puede devolver 404 y el contrato lo acepta. El escenario no mide joins reales con volumen.
+- **Runners de CI heterogéneos.** El leaderboard se publica desde GitHub Actions, donde la máquina cambia entre corridas. Cada resultado guarda su `environment` (CPU, núcleos, memoria, SO); si esos campos difieren, la comparación es indicativa, no concluyente. Para un número firme, medí los adaptadores en la misma máquina.
 
 Cada uno de esos límites es candidato a `good first issue`.
