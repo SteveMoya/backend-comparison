@@ -1,0 +1,65 @@
+{
+  "schema": "runtime-bench.result.v1",
+  "methodologyVersion": "v0.1",
+  "adapter": "python-fastapi",
+  "adapterName": "Python + FastAPI",
+  "runtime": "Python",
+  "framework": "FastAPI",
+  "language": "Python",
+  "runtimeVersion": "3.11",
+  "scenario": "load",
+  "commit": "cab18da82eeeebaad7a0e5b492fc2fdc72ccfe0b",
+  "startedAt": "2026-11-16T12:34:03.102Z",
+  "durationSeconds": 60,
+  "environment": {
+    "os": "Linux 7.0.0-1019-azure",
+    "platform": "linux",
+    "arch": "x64",
+    "cpuModel": "AMD EPYC 7763 64-Core Processor",
+    "cpuCores": 4,
+    "totalMemoryBytes": 16759439360,
+    "node": "v20.20.2",
+    "runner": "github-actions"
+  },
+  "workload": {
+    "durationSeconds": 60,
+    "connections": 50,
+    "requests": [
+      {
+        "method": "GET",
+        "path": "/health"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users?page=1&limit=10"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users/1"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users/1/orders"
+      },
+      {
+        "method": "GET",
+        "path": "/api/users/1/stats"
+      }
+    ]
+  },
+  "metrics": {
+    "requestsPerSecond": 643,
+    "requestsTotal": 38559,
+    "latencyMs": {
+      "average": 77.26,
+      "p50": 83,
+      "p90": 124,
+      "p99": 175,
+      "max": 329
+    },
+    "throughputBytesPerSecond": 328218,
+    "non2xx": 0,
+    "errors": 0,
+    "timeouts": 0
+  }
+}
