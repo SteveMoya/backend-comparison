@@ -6,14 +6,14 @@
   "description": "Benchmark matrix reproducible para runtimes y frameworks backend",
   "license": "MIT",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "bench": "node scripts/bench.mjs",
     "bench:validate": "node scripts/bench.mjs validate",
     "bench:list": "node scripts/bench.mjs list",
     "bench:leaderboard": "node scripts/bench.mjs leaderboard",
-    "test": "node --test tests/"
+    "test": "node --test tests/*.test.mjs"
   },
   "devDependencies": {
     "autocannon": "^8.0.0"

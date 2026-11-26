@@ -117,7 +117,7 @@ src/
 
 | Tecnología | Imagen Base | Puerto | Estado |
 |------------|-------------|--------|--------|
-| Node.js/NestJS | node:20-alpine | 3000 | ✅ |
+| Node.js/NestJS | node:24-alpine | 3000 | ✅ |
 | Bun | oven/bun:1-alpine | 3001 | ✅ |
 | Go/Gin | golang:1.21-alpine | 3002 | ✅ |
 | Python/FastAPI | python:3.11-slim | 3003 | ✅ |
