@@ -16,6 +16,6 @@
     "test": "node --test tests/"
   },
   "devDependencies": {
-    "autocannon": "^8.0.0"
+    "autocannon": "^9.0.0"
   }
 }
